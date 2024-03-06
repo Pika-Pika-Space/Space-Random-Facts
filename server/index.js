@@ -1,8 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import apiController from './apiController.js';
 import cookieParser from 'cookie-parser';
 import authController from './authController.js';
@@ -10,8 +7,6 @@ import dbController from './dbController.js';
 
 const app = express();
 const port = 8080;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // configure cors, json parsing and url encoding
 const whitelist = ['http://localhost:5173', 'http://localhost:8080'];
@@ -33,8 +28,6 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-// app.use(express.static(path.join(__dirname, '../index.html')));
-
 //add in auth for sign in
 app.post('/', authController.login, authController.setCookie, (req, res) => {
   console.log('entered post to root');
@@ -47,12 +40,7 @@ app.put('/user', dbController.addUser, (req, res) => {
   return res.status(201).json(res.locals.user);
 });
 
-//add in auth to verify user
-// app.get('/home', authController.verifyUser, (req, res) => {
-// 	return res.sendFile(path.join(__dirname, '../index.html'));
-// });
-
-// returns a link to an image, a rightAnswer and three wrong answers
+// verify user, returns a link to an image, a rightAnswer and three wrong answers
 app.get(
   '/game',
   authController.verifyUser,

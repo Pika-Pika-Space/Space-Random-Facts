@@ -3,40 +3,42 @@ import React, { useState } from 'react';
 import './LoginForm.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import RegisterForm from '../RegisterForm/RegisterForm.jsx';
+import { Link } from "react-router-dom";
 
 const LoginForm = () => {
-	const [showRegisterForm, setShowRegisterForm] = useState(false);
-	const [formData, setFormData] = useState({
-		username: '',
-		password: '',
-	});
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
 
-	const handleRegisterClick = () => {
-		setShowRegisterForm(true);
-	};
+  const handleRegisterClick = () => {
+    setShowRegisterForm(true);
+  };
 
-	const handleLoginFormSubmit = async (e) => {
-		e.preventDefault();
-		// Logic for handling login form submission
-		console.log('formData',formData);
-		const body = JSON.stringify(formData);
+  const handleLoginFormSubmit = async (e) => {
+    e.preventDefault();
+    // Logic for handling login form submission
+		console.log('formData', formData);
+		
+    const body = JSON.stringify(formData);
 
-		await fetch('http://localhost:8080', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body,
-			credentials: 'include',
-		});
-	};
+    await fetch('http://localhost:8080', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+      credentials: 'include',
+		})
+  };
 
-	const handleInputChange = (e) => {
-		const { name, value } = e.target;
-		setFormData({ ...formData, [name]: value });
-	};
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-	return (
+  return (
 		<div className='wrapper'>
 			{!showRegisterForm ? ( // Render login form if showR[egisterForm is false
 				<form onSubmit={handleLoginFormSubmit}>
@@ -72,7 +74,9 @@ const LoginForm = () => {
 						<a href='#'>Forgot Password?</a>
 					</div>
 
-					<button type='submit'>Login</button>
+					<button type='submit'>
+						<Link to='/game'>Login</Link>
+					</button>
 
 					<div className='register-link'>
 						<p>
