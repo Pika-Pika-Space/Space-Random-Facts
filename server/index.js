@@ -15,7 +15,17 @@ const __dirname = dirname(__filename);
 
 // configure cors, json parsing and url encoding
 const whitelist = ['http://localhost:5173', 'http://localhost:8080'];
+const whitelist = ['http://localhost:5173', 'http://localhost:8080'];
 const corsOptions = {
+	origin: function (origin, callback) {
+		console.log('origin', origin);
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+
 	origin: function (origin, callback) {
 		console.log('origin', origin);
 		if (whitelist.indexOf(origin) !== -1) {
@@ -35,18 +45,11 @@ app.use(cookieParser());
 
 // app.use(express.static(path.join(__dirname, '../index.html')));
 
-app.use('/hello', (req, res) => {
-	console.log('world');
-	return res.status(200).send({ message: 'world' });
-});
-
 //add in auth for sign in
-app.post('/', authController.setCookie, (req, res) => {
+app.post('/', authController.login, authController.setCookie, (req, res) => {
 	console.log('entered post to root');
 	console.log(res.locals.cookie);
-	return res
-		.status(200)
-		.cookie('token', 'spaceCadet', { httpOnly: true, sameSite: 'Lax' });
+	return res.status(200).send('Cookie has been set!')
 	//return res.status(302).redirect('/game');
 });
 
