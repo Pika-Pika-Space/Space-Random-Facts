@@ -6,6 +6,7 @@ import { dirname } from 'path';
 import apiController from './apiController.js';
 import cookieParser from 'cookie-parser';
 import authController from './authController.js';
+import dbController from './dbController.js';
 
 const app = express();
 const port = 8080;
@@ -13,16 +14,26 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // configure cors, json parsing and url encoding
+const whitelist = ['http://localhost:5173', 'http://localhost:8080'];
 const corsOptions = {
-	origin: '*',
+	origin: function (origin, callback) {
+		console.log('origin', origin);
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+
 	credentials: true,
 	optionalSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, '../index.html')));
+// app.use(express.static(path.join(__dirname, '../index.html')));
 
 app.use('/hello', (req, res) => {
 	console.log('world');
@@ -31,13 +42,21 @@ app.use('/hello', (req, res) => {
 
 //add in auth for sign in
 app.post('/', authController.setCookie, (req, res) => {
-	return res.status(302).redirect('/game');
+	console.log('entered post to root');
+	console.log(res.locals.cookie);
+	return res
+		.status(200)
+		.cookie('token', 'spaceCadet', { httpOnly: true, sameSite: 'Lax' });
+	//return res.status(302).redirect('/game');
+});
+
+app.put('/user', dbController.addUser, (req, res) => {
+	return res.status(201).json(res.locals.user);
 });
 
 //add in auth to verify user
-// app.get('/game', authController.verifyUser, (req, res) => {
-// 	// return res.sendFile(path.join(__dirname, '../index.html'));
-// 	return res.status(200).redirect('/game');
+// app.get('/home', authController.verifyUser, (req, res) => {
+// 	return res.sendFile(path.join(__dirname, '../index.html'));
 // });
 
 // returns a link to an image, a rightAnswer and three wrong answers
@@ -50,6 +69,10 @@ app.get(
 		return res.status(200).json(res.locals);
 	}
 );
+
+app.put('/gallery', dbController.addToGallery, (req, res) => {
+	return res.status(201).json({ addedPicture: res.locals.addedPicture });
+});
 
 // 404 handler (not really working)
 app.use('*', (req, res) =>
