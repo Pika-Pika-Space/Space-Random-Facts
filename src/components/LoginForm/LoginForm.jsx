@@ -7,8 +7,8 @@ import RegisterForm from '../RegisterForm/RegisterForm.jsx';
 const LoginForm = () => {
 	const [showRegisterForm, setShowRegisterForm] = useState(false);
 	const [formData, setFormData] = useState({
-		user: '',
-		pass: '',
+		username: '',
+		password: '',
 	});
 
 	const handleRegisterClick = () => {
@@ -18,7 +18,7 @@ const LoginForm = () => {
 	const handleLoginFormSubmit = async (e) => {
 		e.preventDefault();
 		// Logic for handling login form submission
-		console.log(formData);
+		console.log('formData',formData);
 		const body = JSON.stringify(formData);
 
 		await fetch('http://localhost:8080', {
@@ -38,14 +38,14 @@ const LoginForm = () => {
 
 	return (
 		<div className='wrapper'>
-			{!showRegisterForm ? ( // Render login form if showRegisterForm is false
+			{!showRegisterForm ? ( // Render login form if showR[egisterForm is false
 				<form onSubmit={handleLoginFormSubmit}>
 					<h1>Login</h1>
 					<div className='input-box'>
 						<input
 							type='text'
-							id='user'
-							name='user'
+							id='username'
+							name='username'
 							placeholder='Username'
 							required
 							onChange={handleInputChange}
@@ -55,8 +55,8 @@ const LoginForm = () => {
 					<div className='input-box'>
 						<input
 							type='password'
-							id='pass'
-							name='pass'
+							id='password'
+							name='password'
 							placeholder='Password'
 							required
 							onChange={handleInputChange}

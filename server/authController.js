@@ -1,18 +1,51 @@
+import { pool } from './dbController.js';
+import bcrypt from 'bcrypt';
 const authController = {};
+
+// login a user
+authController.login = async (req, res, next) => {
+	console.log('in login function');
+	const { username, password } = req.body;	
+	console.log('username:',username,'--- password:',password);
+	
+	try {
+		// find user based on login username
+		const query = 'SELECT * FROM users WHERE username = $1';
+		const result = await pool.query(query,[username]);
+		// console.log(JSON.stringify(result));
+		if (result.rows.length > 0) {
+			const user = result.rows[0];
+			// check if the input password matches the salted and hashed one in the database
+			const match = await bcrypt.compare(password, user.password);
+			// console.log('match:',match);
+			if(match) {
+				// move on to next middleware function (setCookie)				
+				res.locals.cookie = username;
+				return next();
+			}
+		}
+		return next({
+			log: `Error in authController.login: Invalid credentials`,
+			status: 401,
+			message: 'Invalid credentials!'
+		})
+	} // if an error happened 
+	catch (err) {
+		return next({
+			log: `Error in authController.login: ${err}`,
+			status: 400,
+			message: `An error occurred: ${err.message}`
+		});
+	}
+}
 
 //setting a cookie:
 authController.setCookie = (req, res, next) => {
-	const { user, pass } = req.body;
 	console.log('entered setcookie');
-	console.log('user:', user, '--pass:', pass);
-	if (user === 'spaceCadet' && pass === 'ilovespace') {
-		res.locals.cookie = {token: 'spaceCadet'};
-		// res.cookie('token', 'spaceCadet');
-		//console.log('res cookie:', res.cookie);
-	} else if (user === 'otherUser' && pass === 'ilikespace') {
-		res.locals.cookie = {token: 'otherUser'};
-		// res.cookie('token', 'otherUser');
-		//console.log(res.cookie);
+	console.log(res.locals.cookie)
+	//console.log('username:', username, '--- password:', password);
+	if(res.locals.cookie) {
+		res.cookie('token', res.locals.cookie, { httpOnly: true, sameSite: 'Lax' });
 	} else {
 		return res.send('Unsuccessful login attempt');
 	}
