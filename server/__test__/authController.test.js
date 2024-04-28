@@ -1,5 +1,5 @@
 import authController from '../authController.js';
-import { describe, beforeEach, expect, it, vi } from 'vitest';
+import { describe, beforeEach, expect, it, vi } from 'jest';
 
 describe('POST', () => {
 	let req, res, next;
